@@ -5,10 +5,10 @@
 #include <stddef.h>
 #include "gen/autogen.h"
 
-#define MAX_STDLIB_DIR_PATH 255
+#define REPL_PROMPT "> "
+
 #define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXCEPTION
-#define INCLUDE_STDLIB_HC
 //#define DEBUG_STRESS_GC
 // #define DEBUG_LOG_GC
 

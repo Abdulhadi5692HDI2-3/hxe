@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "*.hxe": "lua",
+        "random": "c",
+        "cstdlib": "c",
+        "system_error": "c",
+        "typeinfo": "c",
+        "common.h": "c",
+        "stddef.h": "c",
+        "module.h": "c",
+        "new": "c",
+        "type_traits": "c"
+    }
+}

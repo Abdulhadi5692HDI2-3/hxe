@@ -25,6 +25,55 @@ static Obj* allocateObject(size_t size, ObjType type) {
 }
 
 
+// if i'm being honest
+// i feel like i should've just used an ValueArray*
+// instead implementing this all over again
+// TODO: fix that once school is over
+// also i did mostly use code from: https://calebschoepp.com/blog/2020/adding-a-list-data-type-to-lox/#:~:text=To%20implement%20lists%20we%20will,do%20not%20add%20more%20opcodes.
+// TODO: try and organize this. perhaps even move this to a new file.
+ObjArray* newArray() {
+    ObjArray* arr = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+    arr->elements = NULL;
+    arr->count = 0;
+    arr->capacity = 0;
+    return arr;
+}
+
+void appendToArray(ObjArray* arr, Value value) {
+    if (arr->capacity < arr->count + 1) {
+        int oldCapacity = arr->capacity;
+        arr->capacity = GROW_CAPACITY(oldCapacity);
+        arr->elements = GROW_ARRAY(Value, arr->elements, oldCapacity, arr->capacity);
+    }
+    arr->elements[arr->count] = value;
+    arr->count++;
+    return;
+}
+
+void storeToArray(ObjArray* arr, int loc,  Value value) {
+    arr->elements[loc]= value;
+}
+
+// this gets an value from the array from loc
+Value getArrayItem(ObjArray* arr, int loc) {
+    return arr->elements[loc];
+}
+
+void deleteFromArray(ObjArray* arr, int loc) {
+    for (int i = loc; i < arr->count - 1; i++) {
+        arr->elements[i] = arr->elements[i + 1];
+    }
+    arr->elements[arr->count - 1] = NULL_VAL;
+    arr->count--;
+}
+
+bool isValidArrayIndex(ObjArray* arr, int loc) {
+    if (loc < 0 || loc > arr->count - 1) {
+        return false;
+    }
+    return true;
+}
+
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
     ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD);
     bound->receiver = receiver;
@@ -134,6 +183,10 @@ static void printFunction(ObjFunction* function) {
 }
 void printObject(Value value) {
     switch (OBJ_TYPE(value)) {
+        case OBJ_ARRAY: {
+            printf("<array>");
+            break;
+        }
         case OBJ_BOUND_METHOD:
             printFunction(AS_BOUND_METHOD(value)->method->function);
             break;

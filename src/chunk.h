@@ -4,6 +4,9 @@
 #include "value.h"
 
 typedef enum {
+    OP_BUILD_ARRAY,
+    OP_INDEX_SUBSCRIPT,
+    OP_STORE_SUBSCRIPT,
     OP_MODULO,
     OP_INHERIT,
     OP_METHOD,

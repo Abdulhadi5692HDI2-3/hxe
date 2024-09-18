@@ -1,2 +1,4 @@
 #pragma once
-#define _hexec_stdlib "/home/abdulhadi5692/plang/stdlib"
+#define hxe_version "v1.0.0"
+#define hxe_blddate "2024-09-18"
+#define hxe_bldtime "20:19:24"

@@ -23,15 +23,47 @@
 VM vm;
 
 static void runtimeError(const char* format, ...);
+// alias (due to some idiotic mistake i made in early dev of this)
+#define nativeFuncError runtimeError
 static void resetStack();
+
+// clock
 static Value clockNative(int argCount, Value* args) {
     return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
+// useless
 static Value _testNative(int argCount, Value* args) {
     return *args;
 }
 
+// array etc functions
+static Value ArrayAppend(int argCount, Value* args) {
+    if (argCount != 2 || !IS_ARRAY(args[0])) {
+        bool a = argCount != 2;
+        if (a) {nativeFuncError("argument Count is not correct!");return NULL_VAL;}
+        a = !IS_ARRAY(args[0]);
+        if (a) {nativeFuncError("argument isn't an array!"); return NULL_VAL;}
+    }
+    ObjArray* arr = AS_ARRAY(args[0]);
+    Value item = args[1];
+    appendToArray(arr, item);
+    return NULL_VAL;
+}
+
+static Value ArrayDelete(int argCount, Value* args) {
+    if (argCount != 2 || !IS_ARRAY(args[0]) || !IS_NUMBER(args[1])) {
+        nativeFuncError("Invalid arguments! (can't determine wtf went wrong tho)");
+        return NULL_VAL;
+    }
+    ObjArray* arr = AS_ARRAY(args[0]);
+    int index = AS_NUMBER(args[1]);
+    if (!isValidArrayIndex(args, index)) {
+        nativeFuncError("Array index is invalid! (assumption: probably an out of\nbounds value you are trying to access)");
+    }
+    deleteFromArray(arr, index);
+    return NULL_VAL;
+}
 // returns the error code from the program being run.
 static Value runprocNative(int argCount, Value* args) {
     int result = system(AS_CSTRING(*args));
@@ -151,6 +183,8 @@ static void nativeFunctions() {
     defineNative("writeFileWithnewline", writeFilewithNewlineNative);
     defineNative("readFile", readFileNative);
     defineNative("newFile", newFileNative);
+    defineNative("append", ArrayAppend);
+    defineNative("delete", ArrayDelete);
 }
 
 
@@ -608,6 +642,74 @@ static InterpretResult run() {
                 double a = AS_NUMBER(pop());
                 int c = FAST_MODULO((int)a, (int)b);
                 push(NUMBER_VAL(c));
+                break;
+            }
+            case OP_BUILD_ARRAY: {
+                ObjArray* array = newArray();
+                uint8_t itemCount = READ_BYTE();
+
+                push(OBJ_VAL(array));
+                for (int i = itemCount; i > 0; i--) {
+                    appendToArray(array, peek(i));
+                }
+                pop();
+
+                while(itemCount-- > 0) {
+                    pop();
+                }
+                push(OBJ_VAL(array));
+                break;
+            }
+            case OP_INDEX_SUBSCRIPT: {
+                Value index = pop();
+                Value list = pop();
+                Value result;
+
+                if (!IS_ARRAY(list)) {
+                    runtimeError("Invalid type to index into.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjArray* array = AS_ARRAY(list);
+
+                if (!IS_NUMBER(index)) {
+                    runtimeError("List index is not a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int index_ = AS_NUMBER(index);
+
+                if (!isValidArrayIndex(array, index_)) {
+                    runtimeError("List index out of range.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                result = getArrayItem(array, AS_NUMBER(index));
+                push(result);
+                break;
+            }
+            case OP_STORE_SUBSCRIPT: {
+                Value item = pop();
+                Value index = pop();
+                Value list = pop();
+
+                if (!IS_ARRAY(list)) {
+                    runtimeError("Cannot store value in a non-array.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjArray* array = AS_ARRAY(list);
+
+                if (!IS_NUMBER(index)) {
+                    runtimeError("Array index is not a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                int index_ = AS_NUMBER(index);
+
+                if (!isValidArrayIndex(array, index_)) {
+                    runtimeError("Invalid array index.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                storeToArray(array, index_, item);
+                push(item);
                 break;
             }
             case OP_RETURN:

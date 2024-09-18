@@ -1,5 +1,11 @@
 #!/usr/bin/bash
-export A=$(readlink -f ./stdlib)
+export A="v1.0.0"
 export B="\"${A}"\"
 echo "#pragma once" > $1
-printf "#define _hexec_stdlib "$B >> $1
+printf "#define hxe_version "$B"\n" >> $1
+export A="$(date -I)"
+export B="\"${A}"\"
+printf "#define hxe_blddate "$B"\n" >> $1
+export A="$(date +%T)"
+export B="\"${A}"\"
+printf "#define hxe_bldtime "$B"\n" >> $1

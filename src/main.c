@@ -7,9 +7,10 @@
 #include "vm.h"
 
 static void repl() {
+    printf("hxe (built from crafting interpreters) %s built binary: %s at %s\n", hxe_version, hxe_blddate, hxe_bldtime);
     char line[1024];
     for (;;) {
-        printf("> ");
+        printf(REPL_PROMPT);
 
         if (!fgets(line, sizeof(line), stdin)) {
             printf("\n");

@@ -30,6 +30,7 @@ typedef enum {
   PREC_FACTOR,      // * /
   PREC_UNARY,       // ! -
   PREC_CALL,        // . ()
+  PREC_SUBSCRIPT,
   PREC_PRIMARY
 } Precedence;
 
@@ -246,6 +247,7 @@ static void endScope() {
 }
 
 
+static void subscript(bool canAssign);
 static void array(bool canAssign);
 static void grouping(bool canAssign);
 static void unary(bool canAssign);
@@ -462,7 +464,7 @@ static void or_(bool canAssign) {
 ParseRule rules[] = {
   [TOKEN_LEFT_PAREN]    = {grouping, call,   PREC_CALL},
   [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LEFT_BRACKET]  = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_LEFT_BRACKET]  = {array,    subscript,   PREC_SUBSCRIPT},
   [TOKEN_RIGHT_BRACKET] = {NULL,     NULL,   PREC_NONE},
   [TOKEN_LEFT_BRACE]    = {NULL,     NULL,   PREC_NONE}, 
   [TOKEN_RIGHT_BRACE]   = {NULL,     NULL,   PREC_NONE},
@@ -553,6 +555,39 @@ static void binary(bool canAssign) {
     }
 }
 
+static void array(bool canAssign) {
+    int itemCount = 0;
+    if (!check(TOKEN_RIGHT_BRACKET)) {
+        do {
+            if (check(TOKEN_RIGHT_BRACKET)) {
+                break;
+            }
+            parsePrecedence(PREC_OR);
+
+            if (itemCount == UINT8_COUNT) {
+                error("Cannot have more than 256 items in an array!");
+            }
+            itemCount++;
+        } while (match(TOKEN_COMMA));
+    }
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after array literal!");
+
+    emitBytes(OP_BUILD_ARRAY, itemCount);
+    return;
+}
+
+static void subscript(bool canAssign) {
+    parsePrecedence(PREC_OR);
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index!");
+
+    if (canAssign && match(TOKEN_EQUAL)) {
+        expression();
+        emitByte(OP_STORE_SUBSCRIPT);
+    } else {
+        emitByte(OP_INDEX_SUBSCRIPT);
+    }
+    return;
+}
 static void call(bool canAssign) {
     uint8_t argCount = argumentList();
     emitBytes(OP_CALL, argCount);

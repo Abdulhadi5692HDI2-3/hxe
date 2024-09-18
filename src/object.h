@@ -8,6 +8,7 @@
 
 #define OBJ_TYPE(val) (AS_OBJ(val)->type)
 
+#define IS_ARRAY(val) isObjType(val, OBJ_ARRAY)
 #define IS_BOUND_METHOD(val) isObjType(val, OBJ_BOUND_METHOD)
 #define IS_CLASS(val) isObjType(val, OBJ_CLASS)
 #define IS_NATIVE(val) isObjType(val, OBJ_NATIVE)
@@ -16,6 +17,7 @@
 #define IS_INSTANCE(val) isObjType(val, OBJ_INSTANCE)
 #define IS_STRING(val) isObjType(val, OBJ_STRING)
 
+#define AS_ARRAY(val) ((ObjArray*)AS_OBJ(val))
 #define AS_BOUND_METHOD(val) ((ObjBoundMethod*)AS_OBJ(val))
 #define AS_CLASS(val) ((ObjClass*)AS_OBJ(val))
 #define AS_CLOSURE(val) ((ObjClosure*)AS_OBJ(val))
@@ -35,6 +37,7 @@ typedef enum {
     OBJ_NATIVE,
     OBJ_CLOSURE,
     OBJ_UPVALUE,
+    OBJ_ARRAY,
 } ObjType;
 
 struct Obj {
@@ -95,6 +98,20 @@ typedef struct {
     Value receiver;
     ObjClosure* method;
 } ObjBoundMethod;
+
+typedef struct {
+    Obj obj;
+    int count;
+    int capacity;
+    Value* elements;
+} ObjArray;
+
+ObjArray* newArray();
+void appendToArray(ObjArray* arr, Value value);
+void storeToArray(ObjArray* arr, int loc,  Value value);
+Value getArrayItem(ObjArray* arr, int loc);
+void deleteFromArray(ObjArray* arr, int loc);
+bool isValidArrayIndex(ObjArray* arr, int loc);
 
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjClass* newClass(ObjString* name);

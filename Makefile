@@ -10,7 +10,7 @@ override OBJ := $(CFILES:.c=.c.o)
 all: preDefinedJob bin/$(OUT)
 
 preDefinedJob:
-	tools/pregenDefine src/gen/autogen.h
+	tools/pregenDefine src/gen/autogen.h date
 bin/$(OUT): $(OBJ)
 	mkdir -p "$$(dirname $@)"
 	$(CC) -g $(OBJ) -o $(OUT)
