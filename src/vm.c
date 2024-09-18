@@ -676,10 +676,15 @@ static InterpretResult run() {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 int index_ = AS_NUMBER(index);
-
+                /*
                 if (!isValidArrayIndex(array, index_)) {
                     runtimeError("List index out of range.");
                     return INTERPRET_RUNTIME_ERROR;
+                }
+                */
+               if (!isValidArrayIndex(array, index_)) {
+                    push(NULL_VAL);
+                    break;
                 }
 
                 result = getArrayItem(array, AS_NUMBER(index));

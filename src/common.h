@@ -7,8 +7,8 @@
 
 #define REPL_PROMPT "> "
 
-#define DEBUG_PRINT_CODE
-#define DEBUG_TRACE_EXCEPTION
+//#define DEBUG_PRINT_CODE
+//#define DEBUG_TRACE_EXCEPTION
 //#define DEBUG_STRESS_GC
 // #define DEBUG_LOG_GC
 

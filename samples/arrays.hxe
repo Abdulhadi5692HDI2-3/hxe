@@ -1,0 +1,5 @@
+var messages = ["message 1", "message 2", "message 3"];
+
+for (var i = 0; i < 5; i = i + 1) {
+    print messages[i];
+}
