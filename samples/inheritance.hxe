@@ -1,0 +1,30 @@
+// syntax: class <classname> : <superclass>
+
+class Shape {
+    init(w, h, name) {
+        this.w = w;
+        this.h = h;
+        this.shape = name;
+    }
+    sayname() {
+        print "Shape name: " + this.shape;
+    }
+}
+
+// these width and height and other crap arent correct
+// pls dont yell at me geometry people!
+class Square : Shape {
+    init() {
+        super.init(4, 4, "Square");
+    }
+}
+
+class Triangle : Shape {
+    init() {
+        super.init(3, 3, "Triangle");
+    }
+}
+var a = Square();
+var b = Triangle();
+a.sayname();
+b.sayname();

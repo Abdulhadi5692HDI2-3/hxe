@@ -1,0 +1,11 @@
+function outer() {
+    var x = "outside";
+    function inner() {
+      print x;
+    }
+  
+    return inner;
+}
+  
+var closure = outer();
+closure();

@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+export A=$(readlink -f ./stdlib)
+export B="\"${A}"\"
+echo "#pragma once" > $1
+printf "#define _hexec_stdlib "$B >> $1

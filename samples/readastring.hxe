@@ -1,0 +1,2 @@
+var a = getk();
+print "You typed: " + a;
