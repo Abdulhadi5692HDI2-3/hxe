@@ -5,6 +5,22 @@
 #include <stddef.h>
 #include "gen/autogen.h"
 
+
+// terminal text coloring stuff
+#define CReset "\x1B[0m"
+#define CRed  "\x1B[31m"
+#define CGreen  "\x1B[32m"
+#define CYellow  "\x1B[33m"
+#define CBlue  "\x1B[34m"
+#define CMagenta  "\x1B[35m"
+#define CCyan  "\x1B[36m"
+#define CWhite  "\x1B[37m"
+#define CBrightRed "\x1B[91m"
+#define CBrightYellow "\x1B[93m"
+#define CBold "\x1B[1m"
+
+// other
+
 #define REPL_PROMPT "> "
 
 //#define DEBUG_PRINT_CODE

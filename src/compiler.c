@@ -95,14 +95,14 @@ static void error(const char* msg) {
 static void errorAt(Token* token, const char* msg) {
     if (parser.panicMode) return;
     parser.panicMode = true;
-    fprintf(stderr, "[line %d] Error", token->line);
+    fprintf(stderr, "[line %d] %s%sError", token->line, CBrightRed,CBold);
 
     if (token->type == TOKEN_EOF) {
-        fprintf(stderr, " at end");
+        fprintf(stderr, " at end%s",CReset);
     } else if (token->type == TOKEN_ERROR) {
         // nothing
     } else {
-        fprintf(stderr, " at '%.*s'", token->length, token->start);
+        fprintf(stderr, " at '%.*s'%s", token->length, token->start, CReset);
     }
 
     fprintf(stderr, ": %s\n", msg);
