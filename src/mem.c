@@ -56,11 +56,18 @@ static void markArray(ValueArray* array) {
         markValue(array->values[i]);
     }
 }
+
 static void freeObject(Obj* obj) {
 #ifdef DEBUG_LOG_GC
     printf("%p free type %d\n", (void*)obj, obj->type);
 #endif
     switch (obj->type) {
+        case OBJ_ARRAY: {
+            ObjArray* arr = (ObjArray*)obj;
+            FREE_ARRAY(Value*, arr->elements, arr->count);
+            FREE(ObjArray, obj);
+            break;
+        }
         case OBJ_BOUND_METHOD: {
             FREE(ObjBoundMethod, obj);
             break;
@@ -128,6 +135,13 @@ static void blackenObject(Obj* obj) {
     printf("\n");
 #endif
     switch(obj->type) {
+        case OBJ_ARRAY: {
+            ObjArray* arr = (ObjArray*)obj;
+            for (int i = 0; i < arr->count; i++) {
+                markValue(arr->elements[i]);
+            }
+            break;
+        }
         case OBJ_BOUND_METHOD: {
             ObjBoundMethod* bound = (ObjBoundMethod*)obj;
             markValue(bound->receiver);
