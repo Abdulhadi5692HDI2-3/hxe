@@ -63,6 +63,7 @@ typedef enum {
 typedef struct _Compiler {
     struct _Compiler* enclosing;
     ObjFunction* function;
+    ObjModule* module;
     FunctionType type;
     Local locals[UINT8_COUNT];
     int localCount;
@@ -762,6 +763,13 @@ static void expressionStatement() {
     emitByte(OP_POP);
 }
 
+static void importStatement() {
+    string(false);
+    int index = makeConstant(OBJ_VAL(copyString(parser.current.start, parser.current.length)));
+    emitBytes(OP_MODULE, index);
+    emitByte(OP_POP);
+}
+
 static void forStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after for!");
@@ -888,6 +896,8 @@ static void declaration() {
 static void statement() {
     if (match(TOKEN_PRINT)) {
         printStatement();
+    } else if (match(TOKEN_IMPORT)) {
+        importStatement();
     } else if (match(TOKEN_FOR)) {
         forStatement();
     } else if (match(TOKEN_IF)) {
@@ -905,10 +915,11 @@ static void statement() {
     }
 }
 
-ObjFunction* compile(const char* source, bool include) {
+ObjFunction* compile(ObjModule* module,  char* source) {
     initScanner(source);
     Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT);
+    compiler.module = module;
 
     parser.hadError = false;
     parser.panicMode = false;

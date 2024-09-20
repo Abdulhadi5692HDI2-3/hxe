@@ -2,5 +2,6 @@
 
 #include "vm.h"
 #include "object.h"
-ObjFunction* compile(const char* source, bool include);
+
+ObjFunction* compile(ObjModule* module,  char* source);
 void markCompilerRoots();

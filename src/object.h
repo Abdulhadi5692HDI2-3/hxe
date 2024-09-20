@@ -8,6 +8,7 @@
 
 #define OBJ_TYPE(val) (AS_OBJ(val)->type)
 
+#define IS_MODULE(val) isObjType(val, OBJ_MODULE)
 #define IS_ARRAY(val) isObjType(val, OBJ_ARRAY)
 #define IS_BOUND_METHOD(val) isObjType(val, OBJ_BOUND_METHOD)
 #define IS_CLASS(val) isObjType(val, OBJ_CLASS)
@@ -17,6 +18,7 @@
 #define IS_INSTANCE(val) isObjType(val, OBJ_INSTANCE)
 #define IS_STRING(val) isObjType(val, OBJ_STRING)
 
+#define AS_MODULE(val) ((ObjModule*)AS_OBJ(val))
 #define AS_ARRAY(val) ((ObjArray*)AS_OBJ(val))
 #define AS_BOUND_METHOD(val) ((ObjBoundMethod*)AS_OBJ(val))
 #define AS_CLASS(val) ((ObjClass*)AS_OBJ(val))
@@ -38,6 +40,7 @@ typedef enum {
     OBJ_CLOSURE,
     OBJ_UPVALUE,
     OBJ_ARRAY,
+    OBJ_MODULE,
 } ObjType;
 
 struct Obj {
@@ -106,6 +109,14 @@ typedef struct {
     Value* elements;
 } ObjArray;
 
+typedef struct {
+    Obj obj;
+    ObjString* name;
+    ObjString* path;
+    Table values;
+} ObjModule;
+
+ObjModule* newModule(ObjString* name);
 ObjArray* newArray();
 void appendToArray(ObjArray* arr, Value value);
 void storeToArray(ObjArray* arr, int loc,  Value value);

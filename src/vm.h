@@ -21,6 +21,11 @@ typedef struct {
     Value* stackTop;
     Table globals;
     Table strings;
+
+
+    ObjModule* lastModule;
+    Table modules;
+
     ObjString* initString;
     ObjUpvalue* openUpvalues;
 

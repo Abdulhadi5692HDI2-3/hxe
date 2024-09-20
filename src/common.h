@@ -22,6 +22,7 @@
 // other
 
 #define REPL_PROMPT "> "
+#define AS_SOON_AS_WE_CAN 1
 
 //#define DEBUG_PRINT_CODE
 //#define DEBUG_TRACE_EXCEPTION

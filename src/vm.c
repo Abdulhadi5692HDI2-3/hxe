@@ -23,6 +23,7 @@
 VM vm;
 
 static void runtimeError(const char* format, ...);
+
 // alias (due to some idiotic mistake i made in early dev of this)
 #define nativeFuncError runtimeError
 static void resetStack();
@@ -172,6 +173,20 @@ static void defineNative(const char* name, NativeFn func) {
     pop();
 }
 
+static void rmQuotes(char* line, int lineLength) {
+    int j = 0;
+    for (int i = 0; i < lineLength; i ++) {
+        if (line[i] != '"' && line[i] != '\\') { 
+            line[j++] = line[i];
+        } else if (line[i+1] == '"' && line[i] == '\\') { 
+            line[j++] = '"';
+    } else if (line[i+1] != '"' && line[i] == '\\') { 
+            line[j++] = '\\';
+        }
+    }
+    if(j>0) line[j]=0;
+}
+
 static void nativeFunctions() {
     defineNative("clock", clockNative);
     defineNative("_test", _testNative);
@@ -189,6 +204,10 @@ static void nativeFunctions() {
 
 
 void initVM(VM nvm) {
+    if (!&nvm) {
+        fprintf(stderr, "\nerror: invalid vm param passed over!");
+        exit(74);
+    }
     vm = nvm;
     resetStack();
     vm.objects = NULL;
@@ -201,6 +220,7 @@ void initVM(VM nvm) {
 
     initTable(&vm.globals);
     initTable(&vm.strings);
+    initTable(&vm.modules);
 
     vm.initString = NULL;
     vm.initString = copyString("init", 4);
@@ -210,6 +230,7 @@ void initVM(VM nvm) {
 void freeVM() {
     freeTable(&vm.globals);
     freeTable(&vm.strings);
+    freeTable(&vm.modules);
     vm.initString = NULL;
     freeObjects();
 }
@@ -372,7 +393,16 @@ static void concatenate() {
 static InterpretResult run();
 
 InterpretResult interpret(const char* source, bool include) {
-    ObjFunction* function = compile(source, include);
+    ObjString* name = copyString("__script__", strlen("__script__"));
+    push(OBJ_VAL(name));
+    ObjModule* module = newModule(name);
+    pop();
+
+    push(OBJ_VAL(module));
+    module->path = "";
+    pop();
+
+    ObjFunction* function = compile(module, source);
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
     push(OBJ_VAL(function));
@@ -631,6 +661,50 @@ static InterpretResult run() {
                 ObjClass* subclass = AS_CLASS(peek(0));
                 tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
                 pop();
+                break;
+            }
+            case OP_MODULE: {
+                ObjString* filename = READ_STRING();
+                Value moduleVal;
+
+                char path[2048];
+                strcpy(path, filename->chars);
+                // remove the god damn quotes
+                rmQuotes(path, strlen(path));
+
+                ObjString* pathObj = copyString(path, strlen(path));
+                push(OBJ_VAL(pathObj));
+
+                if (tableGet(&vm.modules, pathObj, &moduleVal)) {
+                    pop();
+                    vm.lastModule = AS_MODULE(moduleVal);
+                    push(NULL_VAL);
+                    break;
+                }
+
+                char* source = readFile(path);
+                if (!source) {
+                    runtimeError("Failed to open and read module!");
+                }
+
+                ObjModule* mod = newModule(pathObj);
+                mod->path = path;
+                vm.lastModule = mod;
+                pop();
+                push(OBJ_VAL(mod));
+                ObjFunction* function = compile(mod, source);
+                pop();
+
+                free(source);
+
+                if (function == NULL) return INTERPRET_COMPILE_ERROR;
+                push(OBJ_VAL(function));
+                ObjClosure* closure = newClosure(function);
+                pop();
+                push(OBJ_VAL(closure));
+
+                call(closure, 0);
+                frame = &vm.frames[vm.frameCount - 1];
                 break;
             }
             case OP_MODULO: {

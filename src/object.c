@@ -25,6 +25,26 @@ static Obj* allocateObject(size_t size, ObjType type) {
 }
 
 
+ObjModule* newModule(ObjString* name) {
+    Value moduleVal;
+    if (tableGet(&vm.modules, name, &moduleVal)) {
+        return AS_MODULE(moduleVal);
+    }
+
+    ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE);
+    initTable(&module->values);
+    module->name = name;
+    module->path = NULL;
+    push(OBJ_VAL(module));
+    ObjString* __file__ = copyString("__file__", 8);
+    push(OBJ_VAL(__file__));
+
+    tableSet(&module->values, __file__, OBJ_VAL(name));
+    tableSet(&vm.modules, name, OBJ_VAL(module));
+    pop();
+    pop();
+    return module;
+}
 // if i'm being honest
 // i feel like i should've just used an ValueArray*
 // instead implementing this all over again
