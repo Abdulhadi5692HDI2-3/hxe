@@ -7,5 +7,5 @@ a superset of Lox with some changes.
 - [x] you can use the modulo operator
 - [x] Inheritance happens with `class Apple : Fruit` not `class Apple < Fruit`
 - [x] Imports (i've decided that import is just enough for now)
-- [x] A proper Standard Library (you can guess that is going to be a bit easier now with importing module support)
+- [ ] A proper Standard Library (you can guess that is going to be a bit easier now with importing module support)
 - [ ] other things that i dont have time to write
