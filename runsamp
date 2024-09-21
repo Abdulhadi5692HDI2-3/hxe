@@ -1,3 +1,3 @@
 #!/usr/bin/bash
-export LANGBIN=./hexec
+export LANGBIN=./bin/hexec
 $LANGBIN samples/$1

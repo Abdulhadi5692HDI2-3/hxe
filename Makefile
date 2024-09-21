@@ -1,28 +1,28 @@
 # makefile
-OUT=hexec
+OUT=bin/hexec
 CC=gcc
 CFLAGS=-g
 
-override CFILES := $(shell cd src && find -L * -type f -name '*.c' | LC_ALL=C sort)
-override OBJ := $(CFILES:.c=.c.o)
+override CFILES := $(shell cd src && find . -name '*.c')
+override SOURCES := $(shell find src -name '*.c')
+override OBJ := $(SOURCES:.c=.c.o)
 
 .PHONY: all
-all: preDefinedJob bin/$(OUT)
+all: preDefinedJob $(OUT)
 
 preDefinedJob:
 	tools/pregenDefine src/gen/autogen.h date
-bin/$(OUT): $(OBJ)
+$(OUT): $(OBJ)
 	mkdir -p "$$(dirname $@)"
 	$(CC) -g $(OBJ) -o $(OUT)
 
 
-%.c.o: src/%.c
+src/%.c.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 clean:
-	rm -rf bin/$(OUT) $(OBJ)
-	rm -rf bin
-	rm -rf hexec
+	rm -rf $(OUT)
+	rm -rf $(OBJ)
 	rm -rf a.out
 	rm -rf o.map
