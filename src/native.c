@@ -34,7 +34,7 @@ static Value ArrayDelete(int argCount, Value* args) {
     }
     ObjArray* arr = AS_ARRAY(args[0]);
     int index = AS_NUMBER(args[1]);
-    if (!isValidArrayIndex(args, index)) {
+    if (!isValidArrayIndex(AS_ARRAY(args[0]), index)) {
         nativeFuncError("Array index is invalid! (assumption: probably an out of\nbounds value you are trying to access)");
     }
     deleteFromArray(arr, index);

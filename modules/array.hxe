@@ -1,0 +1,13 @@
+class __Array {
+    init() {
+
+    }
+    append(array, value) {
+        _array_append(array, value);
+    }
+    delete(array, num) {
+        _array_delete(array, num);
+    }
+}
+
+var Array = __Array();

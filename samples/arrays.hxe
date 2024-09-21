@@ -1,5 +1,13 @@
-var messages = ["message 1", "message 2", "message 3"];
+var arr = [0, 1, 2, 3, 4, 5];
 
 for (var i = 0; i < 5; i = i + 1) {
-    print messages[i];
+    print arr[i];
+}
+
+// now delete a value from the array
+// the second param is the index to delete off
+Array.delete(arr, 1);
+
+for (var i = 0; i < 5; i = i + 1) {
+    print arr[i];
 }

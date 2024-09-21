@@ -9,3 +9,6 @@ printf "#define hxe_blddate "$B"\n" >> $1
 export A="$(date +%T)"
 export B="\"${A}"\"
 printf "#define hxe_bldtime "$B"\n" >> $1
+export A="$2"
+export B="\"${A}/"\"
+printf "#define hxe_modulep "$B"\n" >> $1

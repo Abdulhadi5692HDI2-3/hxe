@@ -1,0 +1,8 @@
+class _System {
+    init() {
+        this.loaded = true;
+        
+    }
+}
+
+var System = _System();

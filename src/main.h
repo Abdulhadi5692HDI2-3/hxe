@@ -1,3 +1,5 @@
 #pragma once
 
-char* readFile(const char* path);
+#include <stdbool.h>
+
+char* readFile(const char* path, bool exitOnFail);

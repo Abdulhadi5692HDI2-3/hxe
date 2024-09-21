@@ -49,7 +49,7 @@ extern VM vm;
 
 void initVM(VM nvm);
 void freeVM();
-InterpretResult interpret(const char* source, bool include);
+InterpretResult interpret(const char* source, const char* file);
 void push(Value value);
 Value pop();
 void runtimeError(const char* format, ...);

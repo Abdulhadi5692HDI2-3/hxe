@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "compiler.h"
 #include "scanner.h"
+#include "stdlibhxe.h"
 #include <stdlib.h>
 #include <string.h>
 #include "mem.h"
@@ -80,23 +81,24 @@ typedef struct _ClassCompiler {
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
+char* currentFile = NULL;
 
 static Chunk* currentChunk() {
     return &current->function->chunk;
 }
 
-static void errorAt(Token* token, const char* msg);
+static void errorAt(Token* token, const char* msg, const char* file);
 static void errorAtCurrent(const char* msg) {
-    errorAt(&parser.current, msg);
+    errorAt(&parser.current, msg, currentFile);
 }
 
 static void error(const char* msg) {
-    errorAt(&parser.previous, msg);
+    errorAt(&parser.previous, msg, currentFile);
 }
-static void errorAt(Token* token, const char* msg) {
+static void errorAt(Token* token, const char* msg, const char* file) {
     if (parser.panicMode) return;
     parser.panicMode = true;
-    fprintf(stderr, "[line %d] %s%sError", token->line, CBrightRed,CBold);
+    fprintf(stderr, "[line %d in %s] %s%sError", token->line, file, CBrightRed, CBold);
 
     if (token->type == TOKEN_EOF) {
         fprintf(stderr, " at end%s",CReset);
@@ -138,10 +140,10 @@ static bool match(TokenType type) {
     return true;
 }
 
-static void emitByte(uint8_t byte) {
+void emitByte(uint8_t byte) {
     writeChunk(currentChunk(), byte, parser.previous.line);
 }
-static void emitBytes(uint8_t byte1, uint8_t byte2) {
+void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1);
     emitByte(byte2);
 }
@@ -170,7 +172,7 @@ static void emitReturn() {
     }
     emitByte(OP_RETURN);
 }
-static uint8_t makeConstant(Value value) {
+uint8_t makeConstant(Value value) {
     int constant = addConstant(currentChunk(), value);
     if (constant > UINT8_MAX) {
         error("Too many constants in one chunk!");
@@ -921,10 +923,10 @@ ObjFunction* compile(ObjModule* module,  char* source) {
     initCompiler(&compiler, TYPE_SCRIPT);
     compiler.module = module;
 
+    currentFile = module->path;
     parser.hadError = false;
     parser.panicMode = false;
-    //const char* testpath = strcat(_hexec_stdlib, "/test.hxe");
-    //hxeImportF(testpath);
+    InitalizeStdLib(hxe_modulep);
     advance();
     while (!match(TOKEN_EOF)) {
         declaration();

@@ -1,6 +1,7 @@
 #include "vm.h"
 #include "compiler.h"
 #include "native.h"
+#include "stdlibhxe.h"
 #include <stdio.h>
 #ifdef WIN32
     #include <windows.h>
@@ -257,14 +258,14 @@ static void concatenate() {
 
 static InterpretResult run();
 
-InterpretResult interpret(const char* source, bool include) {
+InterpretResult interpret(const char* source, const char* file) {
     ObjString* name = copyString("__script__", strlen("__script__"));
     push(OBJ_VAL(name));
     ObjModule* module = newModule(name);
     pop();
 
     push(OBJ_VAL(module));
-    module->path = "";
+    module->path = file;
     pop();
 
     ObjFunction* function = compile(module, source);
@@ -547,10 +548,7 @@ static InterpretResult run() {
                     break;
                 }
 
-                char* source = readFile(path);
-                if (!source) {
-                    runtimeError("Failed to open and read module!");
-                }
+                char* source = readFile(path, true);
 
                 ObjModule* mod = newModule(pathObj);
                 mod->path = path;

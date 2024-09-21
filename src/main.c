@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 
 #include "chunk.h"
@@ -16,15 +17,18 @@ static void repl() {
             printf("\n");
             break;
         }
-        interpret(line, false);
+        interpret(line, "<repl>");
     }
 }
 
-char* readFile(const char* path) {
+char* readFile(const char* path, bool exitOnFail) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
         fprintf(stderr, "Could not open file %s\n", path);
-        exit(74);
+        if (exitOnFail) {
+            exit(74);
+        }
+        return NULL;
     }
     fseek(file, 0L, SEEK_END);
     size_t fileSize = ftell(file);
@@ -33,12 +37,19 @@ char* readFile(const char* path) {
     char* buffer = (char*)malloc(fileSize + 1);
     if (buffer == NULL) {
         fprintf(stderr, "Not enough memory to read file!\n");
-        exit(74);
+        if (exitOnFail) {
+            exit(74);
+        }
+        return NULL;
+        
     }
     size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
     if (bytesRead < fileSize) {
         fprintf(stderr, "Could not read file \"%s\".\n", path);
-        exit(74);
+        if (exitOnFail) {
+            exit(74);
+        }
+        return NULL;
     }
     buffer[bytesRead] = '\0';
 
@@ -47,7 +58,7 @@ char* readFile(const char* path) {
 }
 
 void runFile(const char* path) {
-    char* source = readFile(path);
+    char* source = readFile(path, path);
     InterpretResult result = interpret(source, false);
     free(source);
 
