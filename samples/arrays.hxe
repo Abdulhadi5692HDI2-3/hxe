@@ -4,6 +4,7 @@ for (var i = 0; i < 5; i = i + 1) {
     print arr[i];
 }
 
+print "Deleting index 1 from array (arr[1])";
 // now delete a value from the array
 // the second param is the index to delete off
 Array.delete(arr, 1);

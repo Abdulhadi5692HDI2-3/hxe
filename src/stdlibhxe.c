@@ -8,28 +8,26 @@
 #include <string.h>
 
 extern char* currentFile;
-// @param loadFrom The function expects the param to have a forward slash '/' at teh end
-void InitalizeStdLib(const char* loadFrom) {
+
+// @param loadFrom note: needs to have a forward slash
+// @param fileName file name of the library
+void LoadHxeFile(const char* loadFrom, const char* fileName) {
     char arr[2048];
     char* save = currentFile;
     strcpy(arr, "");
     strcat(arr, loadFrom);
 
-    // load the  library System (provides System.*)
-    strcat(arr, "system.hxe");
-    currentFile = "system.hxe";
+    // load the library
+    strcat(arr, fileName);
+    currentFile = fileName;
     int index = makeConstant(OBJ_VAL(copyString(arr, strlen(arr))));
     emitBytes(OP_MODULE, index);
     emitByte(OP_POP);
     currentFile = save;
+}
 
-    // load the library Array (provides function to append and to delete from Arrays)
-    strcpy(arr, "");
-    strcat(arr, loadFrom);
-    strcat(arr, "array.hxe");
-    currentFile = "array.hxe";
-    index = makeConstant(OBJ_VAL(copyString(arr, strlen(arr))));
-    emitBytes(OP_MODULE, index);
-    emitByte(OP_POP);
-    currentFile = save;
+// @param loadFrom The function expects the param to have a forward slash '/' at teh end
+void InitalizeStdLib(const char* loadFrom) {
+    LoadHxeFile(loadFrom, "system.hxe");
+    LoadHxeFile(loadFrom, "array.hxe");
 }

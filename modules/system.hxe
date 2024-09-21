@@ -1,7 +1,15 @@
 class _System {
     init() {
-        this.loaded = true;
-        
+        this.loaded = true; 
+    }
+    exit(code) {
+        _inbuilt_exit(code);
+    }
+    run(path) {
+        return _inbuilt_binrun(path);
+    }
+    readstr() {
+        return _inbuilt_readk();
     }
 }
 

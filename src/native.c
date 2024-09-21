@@ -1,5 +1,8 @@
 #include "common.h"
 #include "native.h"
+#include "unistd.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 // alias (due to some idiotic mistake i made in early dev of this)
@@ -41,8 +44,37 @@ static Value ArrayDelete(int argCount, Value* args) {
     return NULL_VAL;
 }
 
+// use the C inbuilt exit() function with the status code
+static Value exitNative(int argCount, Value* args) {
+    if (args == NULL) {
+        fprintf(stdout, "warning: exiting with status 0 since no arguments received!\n");
+        exit(0);
+    } else {
+        exit(AS_NUMBER(*args));
+    }
+}
+
+
+// returns the program status that it executed
+static Value runProgramNative(int argCount, Value* args) {
+    int result = system(AS_CSTRING(args[0]));
+    return NUMBER_VAL(result);
+}
+
+// read from the keyboard
+static Value readKeyNative(int argCount, Value* args) {
+    char in[1024];
+    if (!fgets(in, sizeof(in), stdin)) {
+        printf("\n");
+    }
+    Obj* a = copyString(in, (strlen(in) - 1));
+    return OBJ_VAL(a);
+}
 
 void InitalizeBuiltins() {
     defineNative("_array_append", ArrayAppend);
     defineNative("_array_delete", ArrayDelete);
+    defineNative("_inbuilt_exit", exitNative);
+    defineNative("_inbuilt_binrun", runProgramNative);
+    defineNative("_inbuilt_readk", readKeyNative);
 }
