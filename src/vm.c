@@ -1,5 +1,6 @@
 #include "vm.h"
 #include "compiler.h"
+#include "native.h"
 #include <stdio.h>
 #ifdef WIN32
     #include <windows.h>
@@ -22,121 +23,8 @@
 
 VM vm;
 
-static void runtimeError(const char* format, ...);
-
-// alias (due to some idiotic mistake i made in early dev of this)
-#define nativeFuncError runtimeError
+void runtimeError(const char* format, ...);
 static void resetStack();
-
-// clock
-static Value clockNative(int argCount, Value* args) {
-    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
-
-// useless
-static Value _testNative(int argCount, Value* args) {
-    return *args;
-}
-
-// array etc functions
-static Value ArrayAppend(int argCount, Value* args) {
-    if (argCount != 2 || !IS_ARRAY(args[0])) {
-        bool a = argCount != 2;
-        if (a) {nativeFuncError("argument Count is not correct!");return NULL_VAL;}
-        a = !IS_ARRAY(args[0]);
-        if (a) {nativeFuncError("argument isn't an array!"); return NULL_VAL;}
-    }
-    ObjArray* arr = AS_ARRAY(args[0]);
-    Value item = args[1];
-    appendToArray(arr, item);
-    return NULL_VAL;
-}
-
-static Value ArrayDelete(int argCount, Value* args) {
-    if (argCount != 2 || !IS_ARRAY(args[0]) || !IS_NUMBER(args[1])) {
-        nativeFuncError("Invalid arguments! (can't determine wtf went wrong tho)");
-        return NULL_VAL;
-    }
-    ObjArray* arr = AS_ARRAY(args[0]);
-    int index = AS_NUMBER(args[1]);
-    if (!isValidArrayIndex(args, index)) {
-        nativeFuncError("Array index is invalid! (assumption: probably an out of\nbounds value you are trying to access)");
-    }
-    deleteFromArray(arr, index);
-    return NULL_VAL;
-}
-// returns the error code from the program being run.
-static Value runprocNative(int argCount, Value* args) {
-    int result = system(AS_CSTRING(*args));
-    return NUMBER_VAL(result);
-}
-
-// use the C inbuilt exit() function with the status code
-static Value exitNative(int argCount, Value* args) {
-    if (args == NULL) {
-        printf("warning: exiting with status 0 since no arguments received!\n");
-        exit(0);
-    } else {
-        exit(AS_NUMBER(*args));
-    }
-}
-
-
-// read from the keyboard
-static Value readKeyNative(int argCount, Value* args) {
-    char in[1024];
-    if (!fgets(in, sizeof(in), stdin)) {
-        printf("\n");
-    }
-    Obj* a = copyString(in, (strlen(in) - 1));
-    return OBJ_VAL(a);
-}
-// file operations
-
-// usage: newFile(filename)
-static Value newFileNative(int argCount, Value* args) {
-    FILE* fptr;
-    fptr = fopen(AS_CSTRING(args[0]), "w");
-    fclose(fptr);
-}
-
-// usage: writeFile(filename, <stuff to write>)
-// note: this just appends to a file! (or creates one if it hasnt already existed)
-// if you want to overwrite use unsafeWriteFileNative (todo: implement that)
-static Value writeFileNative(int argCount, Value* args) {
-    FILE* fptr;
-    fptr = fopen(AS_CSTRING(args[0]), "a");
-    fprintf(fptr, AS_CSTRING(args[1]));
-    fclose(fptr);
-}
-
-static Value writeFilewithNewlineNative(int argCount, Value* args) {
-    FILE* fptr;
-    fptr = fopen(AS_CSTRING(args[0]), "a");
-    char* b = strcat(AS_CSTRING(args[1]), "\n");
-    fprintf(fptr, b);
-    fclose(fptr);
-}
-// usage: readFile(filename)
-// note: this returns the characters read in a string
-static Value readFileNative(int argCount, Value* args) {
-    FILE* fptr;
-    fptr = fopen(AS_CSTRING(args[0]), "r");
-    if (fptr == NULL) {
-        return NULL_VAL;
-    }
-    char* resultBuffer;
-    fgets(resultBuffer, strlen(AS_CSTRING(args[0])), fptr);
-    fclose(fptr);
-    Obj* a = copyString(resultBuffer, strlen(resultBuffer));
-    return OBJ_VAL(a);
-}
-
-// uses sleep() to pause for an amount of seconds
-static Value waitNative(int argCount, Value* args){
-    sleep(AS_NUMBER(*args));
-    return NULL_VAL;
-}
 
 static void resetStack() {
     vm.stackTop = vm.stack;
@@ -144,7 +32,7 @@ static void resetStack() {
     vm.openUpvalues = NULL;
 }
 
-static void runtimeError(const char* format, ...) {
+void runtimeError(const char* format, ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
@@ -165,14 +53,6 @@ static void runtimeError(const char* format, ...) {
     resetStack();
 }
 
-static void defineNative(const char* name, NativeFn func) {
-    push(OBJ_VAL(copyString(name, (int)strlen(name))));
-    push(OBJ_VAL(newNative(func)));
-    tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
-    pop();
-    pop();
-}
-
 static void rmQuotes(char* line, int lineLength) {
     int j = 0;
     for (int i = 0; i < lineLength; i ++) {
@@ -185,21 +65,6 @@ static void rmQuotes(char* line, int lineLength) {
         }
     }
     if(j>0) line[j]=0;
-}
-
-static void nativeFunctions() {
-    defineNative("clock", clockNative);
-    defineNative("_test", _testNative);
-    defineNative("getk", readKeyNative);
-    defineNative("syswait", waitNative);
-    defineNative("sysrun", runprocNative);
-    defineNative("sysexit", exitNative);
-    defineNative("writeFile", writeFileNative);
-    defineNative("writeFileWithnewline", writeFilewithNewlineNative);
-    defineNative("readFile", readFileNative);
-    defineNative("newFile", newFileNative);
-    defineNative("append", ArrayAppend);
-    defineNative("delete", ArrayDelete);
 }
 
 
@@ -224,7 +89,7 @@ void initVM(VM nvm) {
 
     vm.initString = NULL;
     vm.initString = copyString("init", 4);
-    nativeFunctions();
+    InitalizeBuiltins();
 }
 
 void freeVM() {

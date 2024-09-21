@@ -1,4 +1,0 @@
-var a = readFile("oh");
-if (a == null) {
-    print "oh no!";
-}
