@@ -1,0 +1,32 @@
+// me personally i am not that keen on math
+class _Math {
+    init() {
+        this.isLoaded = true;
+    }
+    fabs(x) {
+        // x < 0 ? -x : x
+        var r = 0;
+        if (x < 0) {
+            r = x - 1;
+        } else {
+            r = x;
+        }
+        return r;
+    }
+    trunc(x) {
+        return _inbuilt_trunc(x);
+    }
+    fmod(x, y) {
+        var result = _inbuilt_nan();
+        if (!_inbuilt_isinf(x) and !_inbuilt_isnan(x) and !_inbuilt_isinf(y) and y != 0) {
+            var quotient = this.trunc(x / y);
+            var without_trace = y * quotient;
+            result = x - without_trace;
+        } else if (!_inbuilt_isinf(x) and _inbuilt_isinf(y)) {
+            result = x;
+        }
+        return result;
+    }
+}
+
+var Math = _Math();

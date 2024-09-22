@@ -1,0 +1,13 @@
+class _Random {
+    init() {
+        this.isLoaded = true;
+    }
+    setseed(seed) {
+        _inbuilt_srand(seed);
+    }
+    random() {
+        return _inbuilt_rand();
+    }
+}
+
+var Random = _Random();

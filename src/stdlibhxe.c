@@ -9,6 +9,7 @@
 
 extern char* currentFile;
 
+
 // @param loadFrom note: needs to have a forward slash
 // @param fileName file name of the library
 void LoadHxeFile(const char* loadFrom, const char* fileName) {
@@ -30,4 +31,8 @@ void LoadHxeFile(const char* loadFrom, const char* fileName) {
 void InitalizeStdLib(const char* loadFrom) {
     LoadHxeFile(loadFrom, "system.hxe");
     LoadHxeFile(loadFrom, "array.hxe");
+    LoadHxeFile(loadFrom, "file.hxe");
+    LoadHxeFile(loadFrom, "random.hxe");
+    LoadHxeFile(loadFrom, "string.hxe");
+    LoadHxeFile(loadFrom, "math.hxe");
 }

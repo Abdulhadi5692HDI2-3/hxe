@@ -35,7 +35,16 @@ void printValue(Value value) {
             printf(AS_BOOL(value) ? "true" : "false");
             break;
         case VAL_NULL: printf("null"); break;
-        case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
+        case VAL_NUMBER: {
+            if (__builtin_isnan(AS_NUMBER(value))) {
+                printf("NaN");
+            } else if (__builtin_isinf(AS_NUMBER(value))) {
+                printf("Inf");
+            } else {
+                printf("%g", AS_NUMBER(value)); 
+            }
+            break;
+        }
         case VAL_OBJ: printObject(value); break;
     }
 }

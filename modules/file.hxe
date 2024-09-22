@@ -1,0 +1,16 @@
+class _File {
+    init() {
+        this.loaded = true;
+    }
+    write(file, data) {
+        _inbuilt_fwrite(file, data);
+    }
+    append(file, data) {
+        _inbuilt_fappend(file, data);
+    }
+    read(file) {
+        return _inbuilt_fread(file);
+    }
+}
+
+var File = _File();

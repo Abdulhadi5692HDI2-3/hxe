@@ -1,0 +1,11 @@
+// string manipulation
+class _String {
+    init() {
+        this.isLoaded = true;
+    }
+    lengthof(string) {
+        return _inbuilt_strlen(string);
+    }
+}
+
+var String = _String();

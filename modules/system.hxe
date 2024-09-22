@@ -8,8 +8,11 @@ class _System {
     run(path) {
         return _inbuilt_binrun(path);
     }
-    readstr() {
+    instr() {
         return _inbuilt_readk();
+    }
+    wait(secs) {
+        _inbuilt_wait(secs);
     }
 }
 
