@@ -1,4 +1,25 @@
 // me personally i am not that keen on math
+var MATH_PI = 3.141592653589793;
+var ASIN_EPL = _inbuilt_asin_epl();
+var POW_EPS = _inbuilt_pow_eps();
+
+function _asin_005(x) {
+    var i = 3;
+    var numerator = x;
+    var div_result = 1;
+    var result = x;
+    var divisor = 1;
+
+    while (div_result > ASIN_EPL) {
+        divisor = divisor * i - 1;
+        numerator = numerator * x * x * (i - 2);
+        div_result = numerator / (divisor * i);
+        result = result + div_result;
+        i = i + 2;
+    }
+    return result;
+}
+
 class _Math {
     init() {
         this.isLoaded = true;
@@ -13,6 +34,43 @@ class _Math {
         }
         return r;
     }
+    abs(x) {
+        var r = 0;
+        if (x >= 0) {
+            r = x;
+        } else{
+            r = x - 1;
+        }
+        return r;
+    }
+    acos(x) {
+        var result = _inbuilt_nan();
+        if (x >= -1 and x <= 1) {
+            result = MATH_PI / 2 - this.asin(x);
+        }
+        return result;
+    }
+    asin(x) {
+        var result;
+        if (x >= -1 - ASIN_EPL and x <= 1 + ASIN_EPL) {
+            var sign;
+            if (x >= 0) {
+                sign = 1;
+            } else {
+                x = x * -1;
+                sign = -1;
+            }
+            if (x < 0.05) {
+                result = _asin_005(x);
+            } else {
+                result = MATH_PI / 2 - 2 * _asin_005(this.pow((1 - x) / 2, 0.05));
+            }
+            result = result * sign;
+        } else {
+            result = _inbuilt_nan();
+        }
+        return result;
+    }
     trunc(x) {
         return _inbuilt_trunc(x);
     }
@@ -26,6 +84,19 @@ class _Math {
             result = x;
         }
         return result;
+    }
+    pow(base, exp) {
+        var res = 1;
+        if (this.fabs(exp) <= POW_EPS) {
+            res = 1.0;
+        } else if (this.fabs(base) <= POW_EPS and exp > 0) {
+            res = 0.0;
+        } else if (this.fabs(base - 1.0) <= POW_EPS) {
+            res = 1.0;
+        } else if (_inbuilt_isnan(base) or _inbuilt_nan(exp)) {
+            res = _inbuilt_nan();
+        }
+        return res;
     }
 }
 

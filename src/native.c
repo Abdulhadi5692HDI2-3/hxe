@@ -167,6 +167,14 @@ static Value trunc_native(int argCount, Value* args) {
     return args[0];
 }
 
+static Value asineplNative(int argCount, Value* args) {
+    return NUMBER_VAL(1e-16l);
+}
+
+static Value powepsNative(int argCount, Value* args) {
+    return NUMBER_VAL(1e-100l);
+}
+
 void InitalizeBuiltins() {
     defineNative("_array_append", ArrayAppend);
     defineNative("_array_delete", ArrayDelete);
@@ -185,4 +193,6 @@ void InitalizeBuiltins() {
     defineNative("_inbuilt_isnan", isNaN_native);
     defineNative("_inbuilt_isinf", isInf_native);
     defineNative("_inbuilt_trunc", trunc_native);
+    defineNative("_inbuilt_asin_epl", asineplNative);
+    defineNative("_inbuilt_pow_eps", powepsNative);
 }
