@@ -119,10 +119,12 @@ static bool call(ObjClosure* closure, int argCount) {
         runtimeError("Expected %d params but got %d.", closure->function->arity, argCount);
         return false;
     }
+    #ifndef __ALLOW_STACK_OVERFLOW
     if (vm.frameCount == FRAMES_MAX) {
         runtimeError("Stack overflow.");
         return false;
     }
+    #endif
     CallFrame* frame = &vm.frames[vm.frameCount++];
     frame->closure = closure;
     frame->ip = closure->function->chunk.code;

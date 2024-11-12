@@ -5,3 +5,5 @@ function isEven(x) {
 function isOdd(x) {
 	return !isEven(x);
 }
+
+isEven(1);
