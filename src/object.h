@@ -136,3 +136,4 @@ ObjString* copyString(const char* chars, int length);
 
 bool isObjType(Value value, ObjType type);
 void printObject(Value value);
+char* typeofObject(Value value);

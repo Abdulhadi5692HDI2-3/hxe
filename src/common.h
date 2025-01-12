@@ -27,7 +27,7 @@
 //#define DEBUG_PRINT_CODE
 //#define DEBUG_TRACE_EXCEPTION
 //#define DEBUG_STRESS_GC
-// #define DEBUG_LOG_GC
+//#define DEBUG_LOG_GC
 //#define __ALLOW_STACK_OVERFLOW
 #define FAST_MODULO(a1, a2) a1 & (a2 - 1)
 #define NORMAL_MODULO(a1, a2) a1 % a2

@@ -233,3 +233,37 @@ void printObject(Value value) {
             break;
     }
 }
+
+char* typeofObject(Value value) {
+    switch (OBJ_TYPE(value)) {
+        case OBJ_ARRAY: {
+            return("array");
+            break;
+        }
+        case OBJ_BOUND_METHOD:
+            return("function");
+            break;
+        case OBJ_CLASS:
+            return "class";
+            break;
+        case OBJ_CLOSURE:
+            return("function");
+            break;
+        case OBJ_STRING:
+            return("string");
+            break;
+        case OBJ_FUNCTION:
+            return("function");
+            break;
+        case OBJ_INSTANCE:
+            return "instance";
+            break;
+        case OBJ_NATIVE:
+            return("native");
+            break;
+        case OBJ_UPVALUE:
+            return("upvalue");
+            break;
+    }
+    return "n/a";
+}

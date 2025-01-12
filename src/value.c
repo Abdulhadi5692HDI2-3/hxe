@@ -49,6 +49,21 @@ void printValue(Value value) {
     }
 }
 
+char* typeofValue(Value value) {
+    switch(value.type) {
+        case VAL_BOOL:
+            return "boolean";
+            break;
+        case VAL_NULL: return "null"; break;
+        case VAL_NUMBER: {
+            return "number";
+            break;
+        }
+        case VAL_OBJ: return typeofObject(value);
+    }
+    return "n/a";
+}
+
 bool valuesEqual(Value a, Value b) {
     if (a.type != b.type) return false;
     switch (a.type) {

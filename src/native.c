@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "value.h"
 
 // alias (due to some idiotic mistake i made in early dev of this)
 #define nativeFuncError(n) fprintf(stderr, "\n%s\n", n)
@@ -128,6 +129,10 @@ static Value timecNative(int argCount, Value* args) {
     return NUMBER_VAL(time((long)AS_NUMBER(args[0])));
 }
 
+static Value clockcNative(int argCount, Value* args) {
+    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
+
 // other
 static Value chkzeroNative(int argCount, Value* args) {
     if (argCount != 1) {
@@ -175,6 +180,10 @@ static Value powepsNative(int argCount, Value* args) {
     return NUMBER_VAL(1e-100l);
 }
 
+static Value typeofNative(int argCount, Value* args) {
+    ObjString* returner = copyString(typeofValue(args[0]), strlen(typeofValue(args[0])));
+    return OBJ_VAL(returner);
+}
 void InitalizeBuiltins() {
     defineNative("_array_append", ArrayAppend);
     defineNative("_array_delete", ArrayDelete);
@@ -188,6 +197,7 @@ void InitalizeBuiltins() {
     defineNative("_inbuilt_rand", randNative);
     defineNative("_inbuilt_srand", srandNative);
     defineNative("_inbuilt_time", timecNative);
+    defineNative("_inbuilt_clock", clockcNative);
     defineNative("_inbuilt_strlen", chkzeroNative);
     defineNative("_inbuilt_nan", getNaN_native);
     defineNative("_inbuilt_isnan", isNaN_native);
@@ -195,4 +205,7 @@ void InitalizeBuiltins() {
     defineNative("_inbuilt_trunc", trunc_native);
     defineNative("_inbuilt_asin_epl", asineplNative);
     defineNative("_inbuilt_pow_eps", powepsNative);
+
+    // special typeof
+    defineNative("typeof", typeofNative);
 }

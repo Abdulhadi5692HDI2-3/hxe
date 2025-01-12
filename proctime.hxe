@@ -1,0 +1,9 @@
+var start = _inbuilt_clock();
+var index = 0;
+for (index = 0; index < 100; index = index + 1) {
+
+}
+var end = _inbuilt_clock();
+print "Took: ";
+print end - start;
+print "seconds.";
