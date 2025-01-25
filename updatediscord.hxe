@@ -1,0 +1,15 @@
+// update discord script
+var newver = "0.0.81";
+var buildinfo = "/usr/share/discord/resources/build_info.json";
+var user = "abdulhadi5692";
+
+print "Version to update discord to: " + newver;
+print "File of discord build info is at: " + buildinfo;
+print "User to run discord as (since this script is supposed to be ran as root): " + user;
+var buildinfo_newd = `{"releaseChannel": "stable","version": "` + newver + `"}`;
+File.write(buildinfo, buildinfo_newd);
+print "Written to file";
+print "Press ENTER to (try) open discord....";
+var wait = System.instr();
+print "Opening discord now.... (assuming it's in the PATH)...";
+System.run("sudo -u " + user + " discord");

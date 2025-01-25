@@ -89,6 +89,14 @@ static void skipWhitespace() {
                     return;
                 }
                 break;
+	        case '#':
+		        if (peekNext() == '!') {
+                    if (peekNext() == '/') {
+                        while (peek() != '\n' && !isAtEnd()) advance();
+                    }
+                } else {
+                    return;
+                }
             default:
                 return;
         }
@@ -178,6 +186,18 @@ static Token string() {
     return makeToken(TOKEN_STRING);
 }
 
+static Token string_other() {
+    while (peek() != '`' && !isAtEnd()) {
+        if (peek() == '\n') scanner.line++;
+        advance();
+    }
+
+    if(isAtEnd()) return errorToken("Unclosed string!");
+
+    advance();
+    return makeToken(TOKEN_STRING);
+}
+
 Token scanToken() {
     skipWhitespace();
     scanner.start = scanner.current;
@@ -216,6 +236,7 @@ Token scanToken() {
             return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
         }
         case '"': return string();
+        case '`': return string_other();
     }
     return errorToken("Unexpected Character!");
 }

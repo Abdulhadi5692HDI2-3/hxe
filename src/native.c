@@ -184,6 +184,33 @@ static Value typeofNative(int argCount, Value* args) {
     ObjString* returner = copyString(typeofValue(args[0]), strlen(typeofValue(args[0])));
     return OBJ_VAL(returner);
 }
+
+static Value printToNative(int argCount, Value* args) {
+    char* firstparam = AS_CSTRING(args[0]);
+    printf("debug: firstparam=%s\n", firstparam);
+    //strcpy(firstparam, AS_CSTRING(args[0]));
+    /*
+    accepted strings for `firstparam`:
+    "error",
+    "output"
+    */
+    if (firstparam == "error") {
+        printf("debug: stream=error\n");
+        fprintf(stderr, AS_CSTRING(args[1]));
+        return NULL_VAL;
+    }
+    if (firstparam == "output") {
+        printf("debug: stream=output\n");
+        fprintf(stdout, AS_CSTRING(args[1]));
+        return NULL_VAL;
+    } else if (!(firstparam == "output") && !(firstparam == "error")) {
+        nativeFuncError("error (printToNative:native.c:202): invalid stream!");
+        return NULL_VAL;
+    }
+
+    //return NULL_VAL;
+}
+
 void InitalizeBuiltins() {
     defineNative("_array_append", ArrayAppend);
     defineNative("_array_delete", ArrayDelete);
@@ -208,4 +235,6 @@ void InitalizeBuiltins() {
 
     // special typeof
     defineNative("typeof", typeofNative);
+    defineNative("stdprint", printToNative);
+    
 }
